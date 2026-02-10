@@ -10,6 +10,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
+/* ================= HELPER FUNCTIONS ================= */
 
 function fibonacci(n) {
   let a = 0,
@@ -84,36 +85,33 @@ app.post("/bfhl", async (req, res) => {
       }
       data = hcf(body.hcf);
     } else if ("AI" in body) {
-      if (typeof body.AI !== "string") {
-        throw "AI input must be a string";
+  if (typeof body.AI !== "string") {
+    throw "AI input must be a string";
+  }
+
+  const response = await axios.post(
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+    {
+      contents: [
+        {
+          parts: [
+            {
+              text: `Answer in ONE WORD only.\nQuestion: ${body.AI}`
+            }
+          ]
+        }
+      ]
+    },
+    {
+      params: {
+        key: process.env.GEMINI_API_KEY
       }
+    }
+  );
 
-      try {
-        const response = await axios.post(
-          "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent",
-          {
-            contents: [
-              {
-                parts: [{ text: body.AI }],
-              },
-            ],
-          },
-          {
-            params: { key: process.env.GEMINI_API_KEY },
-          },
-        );
-
-        data = response.data.candidates[0].content.parts[0].text
-          .trim()
-          .split(" ")[0];
-      } catch (e) {
-        const q = body.AI.toLowerCase();
-
-        if (q.includes("maharashtra")) data = "Mumbai";
-        else if (q.includes("india")) data = "Delhi";
-        else data = "Answer";
-      }
-    } else {
+  data = response.data.candidates[0].content.parts[0].text.trim();
+}
+ else {
       throw "Invalid key in request body";
     }
 
