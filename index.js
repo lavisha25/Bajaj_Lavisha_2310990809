@@ -47,7 +47,8 @@ function lcm(arr) {
 app.get("/health", (req, res) => {
   res.status(200).json({
     is_success: true,
-    official_email: "OFFICIAL_MAIL_ID"
+    official_email: process.env.OFFICIAL_EMAIL
+
   });
 });
 
@@ -119,7 +120,7 @@ app.post("/bfhl", async (req, res) => {
 
     res.status(200).json({
       is_success: true,
-      official_email: "OFFICIAL_MAIL_ID",
+      official_email: process.env.OFFICIAL_EMAIL,
       data: data
     });
 
